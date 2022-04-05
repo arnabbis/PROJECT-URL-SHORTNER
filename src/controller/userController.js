@@ -9,14 +9,15 @@ const urlMake = async function(req,res){
 try{
     const baseUrl = "http://localhost:3000/"
     const data = req.body
-    const {longUrl,shortUrl,urlCode} = data
-    if(Object.keys(data)==0)return res.status(400).send({status:false,msg:"please put details in the body"})
-    // VALIDATING BASE URL:
+    const {longUrl} = data
+    let keys = Object.keys(data)
+    if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message:"please put some data in the body"})
+    if(keys.length>0){if(!(keys.length==1 && keys== 'longUrl'))return res.status(400).send({status:false, message: "only longUrlfield is allowed"})}        
     if (!validUrl.isUri(baseUrl.trim())){return res.status(400).send({status:false,msg:"baserUrl is not valid"})}
     // VALIDATING LONG-URL:
     if(!data.longUrl) return res.status(400).send({status:false,msg:"longUrl is not present"})
     if(data.longUrl.trim().length == 0) return res.status(400).send({status:false,msg:"enter the longUrl in proper format"})
-    if(!(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/).test(longUrl))return res.status(400).send({status:false,msg:"longUrl is invalid"})
+    if(!(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-])?\??(?:[\-\+=&;%@\.\w])#?(?:[\.\!\/\\\w]*))?)/).test(longUrl))return res.status(400).send({status:false,msg:"longUrl is invalid"})
     let duplongUrl = await userModel.findOne({longUrl:longUrl})
     if(duplongUrl)return res.status(400).send({status:false,msg:"shortUrl is already generated for this longUrl"})
     // VALIDATING URL-CODE:
